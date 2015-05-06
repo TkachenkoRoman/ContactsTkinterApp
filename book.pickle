@@ -1,0 +1,44 @@
+(lp0
+(icontact
+Contact
+p1
+(dp2
+S'Phone'
+p3
+S'1234567'
+p4
+sS'Name'
+p5
+S'Roman'
+p6
+sS'Address'
+p7
+S'Roman Adress here'
+p8
+sba(icontact
+Contact
+p9
+(dp10
+g3
+S'9873451'
+p11
+sg5
+S'Grisha'
+p12
+sg7
+S'Grisha Adress here'
+p13
+sba(icontact
+Contact
+p14
+(dp15
+g3
+S'7352531'
+p16
+sg5
+S'Andru'
+p17
+sg7
+S'Andru Adress here'
+p18
+sba.
