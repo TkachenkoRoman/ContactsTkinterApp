@@ -3,6 +3,8 @@ import os
 import ttk
 from contact import Contact
 from contactsSerializer import ContactsSerializer
+import tkSimpleDialog
+import tkMessageBox
 
 class App(tk.Frame):
     def __init__(self, master):
@@ -63,7 +65,21 @@ class App(tk.Frame):
         self.fillTreeView(contacts)
 
     def buttonFindHandler(self):
-        pass
+        d = FindDialog(self)
+        found = False
+        print d.result
+        for item in self.tree.get_children():
+            values = self.tree.item(item)["values"]
+            if d.result["mode"] == 'Name':
+                if d.result["find"] == str(values[0]):
+                    self.tree.selection_add(item)
+                    found = True
+            if d.result["mode"] == 'Phone':
+                if d.result["find"] == str(values[1]):
+                    self.tree.selection_add(item)
+                    found = True
+        if found == False:
+            tkMessageBox.showinfo("Result", "Nothing found!")
 
     def buttonMaskHandler(self):
         pass
@@ -105,17 +121,40 @@ class AddDialog:
 
         buttonOk = tk.Button(top, text="OK", command=self.ok)
         buttonOk.grid(row = 3, column = 0, sticky='snew')
-        buttonCansel = tk.Button(top, text="Cansel", command=self.cansel)
-        buttonCansel.grid(row = 3, column = 1, sticky='snew')
+        buttonCancel = tk.Button(top, text="Cancel", command=self.cancel)
+        buttonCancel.grid(row = 3, column = 1, sticky='snew')
 
     def ok(self):
         contact = Contact(str(self.entryName.get()), str(self.entryPhone.get()), str(self.entryAddress.get()))
         serializer = ContactsSerializer()
-        serializer.addContact(contact)
+        if contact.Name != '' or contact.Phone != '' or contact.Address != '':
+            serializer.addContact(contact)
         self.top.destroy()
 
-    def cansel(self):
+    def cancel(self):
         self.top.destroy()
+
+class FindDialog(tkSimpleDialog.Dialog):
+
+    def body(self, master):
+
+        tk.Label(master, text="Find:").grid(row=0)
+
+        self.entryFind = tk.Entry(master)
+        self.entryFind.grid(row=0, column=1)
+
+        self.mode = tk.StringVar()
+        self.mode.set('Name')
+
+        tk.Radiobutton(master, text="Name", variable=self.mode, value='Name').grid(row=1)
+        tk.Radiobutton(master, text="Phone", variable=self.mode, value='Phone').grid(row=2)
+
+        return self.entryFind # initial focus
+
+    def apply(self):
+        findWord = str(self.entryFind.get())
+        mode = self.mode.get()
+        self.result = {"find": findWord, "mode": mode}
 
 root = tk.Tk()
 app = App(root)
