@@ -5,6 +5,7 @@ from contact import Contact
 from contactsSerializer import ContactsSerializer
 import tkSimpleDialog
 import tkMessageBox
+import re
 
 class App(tk.Frame):
     def __init__(self, master):
@@ -67,22 +68,37 @@ class App(tk.Frame):
     def buttonFindHandler(self):
         d = FindDialog(self)
         found = False
-        print d.result
-        for item in self.tree.get_children():
-            values = self.tree.item(item)["values"]
-            if d.result["mode"] == 'Name':
-                if d.result["find"] == str(values[0]):
-                    self.tree.selection_add(item)
-                    found = True
-            if d.result["mode"] == 'Phone':
-                if d.result["find"] == str(values[1]):
-                    self.tree.selection_add(item)
-                    found = True
-        if found == False:
-            tkMessageBox.showinfo("Result", "Nothing found!")
+        if d.result != None:
+            print d.result
+            for item in self.tree.get_children():
+                values = self.tree.item(item)["values"]
+                if d.result["mode"] == 'Name':
+                    if d.result["find"] == str(values[0]):
+                        self.tree.selection_add(item)
+                        found = True
+                if d.result["mode"] == 'Phone':
+                    if d.result["find"] == str(values[1]):
+                        self.tree.selection_add(item)
+                        found = True
+            if found == False:
+                tkMessageBox.showinfo("Result", "Nothing found!")
 
     def buttonMaskHandler(self):
-        pass
+        d = MaskDialog(self)
+        pattern = ''
+        if d.result != None:
+            if d.result["mask"] != '' and d.result["mask"] != None:
+                for char in d.result["mask"]:
+                    if char == '*':
+                        pattern += '.*'
+                    else:
+                        pattern += char
+            print "pattern", pattern
+            for item in self.tree.get_children():
+                values = self.tree.item(item)["values"]
+                if re.search(pattern, str(values[0])):
+                    print "found a match"
+                    self.tree.selection_add(item)
 
     def buttonAddHandler(self):
         d = AddDialog(self)
@@ -155,6 +171,21 @@ class FindDialog(tkSimpleDialog.Dialog):
         findWord = str(self.entryFind.get())
         mode = self.mode.get()
         self.result = {"find": findWord, "mode": mode}
+
+class MaskDialog(tkSimpleDialog.Dialog):
+
+    def body(self, master):
+
+        tk.Label(master, text="Name mask:").grid(row=0)
+
+        self.entryMask = tk.Entry(master)
+        self.entryMask.grid(row=0, column=1)
+
+        return self.entryMask # initial focus
+
+    def apply(self):
+        mask = str(self.entryMask.get())
+        self.result = {"mask": mask}
 
 root = tk.Tk()
 app = App(root)
